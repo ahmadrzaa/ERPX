@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ receipt.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        p {
+            padding: 0;
+            margin: 0;
+            font-size: 14px;
+        }
+        .receipt-container {
+            width: 800px;
+       
+        
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .header .logo {
+            text-align: right;
+        }
+
+        .receipt-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .receipt-info div {
+            flex: 1;
+        }
+
+        .receipt-info div:nth-child(2) {
+            text-align: right;
+        }
+
+        .details {
+            margin: 20px 0;
+        }
+
+        .details h2 {
+            font-size: 18px;
+            text-decoration: underline;
+        }
+
+        .company-details,
+        .client-details {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .totals {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .totals p {
+            font-size: 14px;
+        
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+            color: #888;
+        }
+        .notes {
+            margin: 20px 0;
+            font-size: 14px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>RECEIPT</h1>
+            <div class="logo">
+                <img style="width: 200px;" src="{{ company_logo_url }}" alt="Company Logo">
+            </div>
+        </div>
+
+        <!-- Receipt Info -->
+        <div class="receipt-info">
+            <div>
+                <p><strong>Receipt No:</strong> {{ receipt.id }}</p>
+                <p><strong>Payment Date:</strong> {{ receipt.payment_date }} </p>
+            </div>
+            <div>
+                <p><strong>Issued Date:</strong> {{ receipt.issue_date }}</p>
+            </div>
+        </div>
+
+        <!-- Company and Client Details -->
+        <div class="details">
+            <div class="company-details">
+                <h2>FROM:</h2>
+                <p>{{ company_name }}</p>
+                <p>{{ company_address }}</p>
+                <p>Phone: {{ company_phone }}</p>
+                <p>Email: {{ company_email }}</p>
+            </div>
+            <div class="client-details">
+                <h2>TO:</h2>
+                <p>{{ receipt.client_name }}</p>
+                <p>{{ receipt.comp_name }}</p>
+                <p>{{ receipt.client_email }}</p>
+            </div>
+        </div>
+
+        <!-- Payment Details -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice Date</th>
+                    <th>Reference</th>
+                    <th>Total Paid ({{ receipt.currency }})</th>
+                    <th>Still Owing ({{ receipt.currency }})</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ receipt.invoice_date }}</td>
+                    <td>{{ receipt.reference }}</td>
+                    <td>{{ receipt.amount_paid }}</td>
+                    <td>{{ receipt.amount_due }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals">
+            <p><strong>Total Amount Paid:</strong> {{ receipt.currency }} {{ receipt.amount_paid }}</p>
+            <p><strong>Balance Due:</strong> {{ receipt.currency }} {{ receipt.amount_due }}</p>
+        </div>
+
+
+   
+          <!-- Notes -->
+        <div class="notes">
+            <strong>Special Notes and Terms:</strong>
+            <p>It has been a pleasure doing business with you.</p>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            This is a system-generated receipt. Thank you for your payment!
+        </footer>
+    </div>
+</body>
+</html>

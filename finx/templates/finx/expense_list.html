@@ -1,0 +1,151 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">Expenses</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'finx:expense_create' %}" class="oh-btn oh-btn--secondary me-2">
+                <ion-icon name="add-outline" class="me-1"></ion-icon> Add New Expense
+            </a>
+            <a href="{% url 'finx:export_expenses' %}" class="oh-btn oh-btn--secondary">Export</a>
+        </div>
+        </div>
+
+        
+
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--info">
+                    <h5 class="oh-card__title">Total Expenses</h5>
+                    <p class="oh-card__value">BHD {{ total_expenses|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--success">
+                    <h5 class="oh-card__title">Paid Expenses</h5>
+                    <p class="oh-card__value">BHD {{ total_paid|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--danger">
+                    <h5 class="oh-card__title">Unpaid Expenses</h5>
+                    <p class="oh-card__value">BHD {{ total_unpaid|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--neutral">
+                    <h5 class="oh-card__title">Paid Expense Count</h5>
+                    <p class="oh-card__value">{{ paid_count }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--warning">
+                    <h5 class="oh-card__title">Unpaid Expense Count</h5>
+                    <p class="oh-card__value">{{ unpaid_count }}</p>
+                </div>
+            </div>
+        </div>
+        
+         <!-- Filters Section -->
+         <form method="get" class="oh-form mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control oh-input w-100">
+                </div>
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control oh-input w-100">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-control oh-input select-widget">
+                        <option value="">All Statuses</option>
+                        <option value="paid" {% if request.GET.status == "paid" %}selected{% endif %}>Paid</option>
+                        <option value="unpaid" {% if request.GET.status == "unpaid" %}selected{% endif %}>Unpaid</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select id="category" name="category" class="form-control oh-input select-widget">
+                        <option value="">All Categories</option>
+                        {% for code, label in categories %}
+                        <option value="{{ code }}" {% if request.GET.category == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="oh-btn oh-btn--secondary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table oh-table">
+                <thead>
+                    <tr>
+                        <th>Exp No</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount (BHD)</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.number }}</td>
+                        <td>{{ expense.name }}</td>
+                        <td>{{ expense.email }}</td>
+                        <td>{{ expense.date }}</td>
+                        <td>{{ expense.get_category_display }}</td>
+                        <td>{{ expense.amount|floatformat:2 }}</td>
+                        <td>{{ expense.description }}</td>
+                        <td>{{ expense.get_status_display }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                              
+                      
+                                {% if expense.status == "unpaid" %}
+                                    <a href="{% url 'finx:mark_expense_paid' expense.pk %}" class="btn btn-success mark_as_paid">  <ion-icon name="checkmark-outline" style="color: green;"></ion-icon>Mark as Paid</a>
+                                 {% endif %}
+                                <form action="{% url 'finx:expense_delete' expense.id %}" method="post" style="display: inline;">`n    {% csrf_token %}
+                                    {% csrf_token %}
+                                    <button type="submit" class="oh-btn oh-btn--light me-2">
+                                        <ion-icon name="trash-outline" style="color: red;" role="img" class="md hydrated" aria-label="trash outline"></ion-icon>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No expenses found.</td> <!-- Updated colspan to 6 -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center align-items-center mt-4">
+            {% if expenses.has_previous %}
+                <a href="?page=1" class="oh-btn oh-btn--light me-2">&laquo; First</a>
+                <a href="?page={{ expenses.previous_page_number }}" class="oh-btn oh-btn--light me-2">Previous</a>
+            {% endif %}
+            <span class="current fw-bold mx-2">
+                Page {{ expenses.number }} of {{ expenses.paginator.num_pages }}
+            </span>
+            {% if expenses.has_next %}
+                <a href="?page={{ expenses.next_page_number }}" class="oh-btn oh-btn--light me-2">Next</a>
+                <a href="?page={{ expenses.paginator.num_pages }}" class="oh-btn oh-btn--light">&raquo; Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends "index.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-general__tab-target oh-profile-section mb-4">
+        <div class="oh-profile-section__card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="oh-profile-section__title">{% trans "Contracts" %}</h4>
+                <a href="https://lamx.intermid.net/" target="_blank" class="oh-btn oh-btn--secondary oh-btn--shadow">
+                    <ion-icon name="add-outline" role="img" class="md hydrated" aria-label="add outline"></ion-icon>{% trans  "New Contract" %}
+                </a>
+            </div>
+            <div class="row mb-4">
+                <!-- Total Contracts -->
+                <div class="col-md-3">
+                    <div class="oh-card-dashboard oh-card-dashboard--info">
+                        <h5 class="oh-card__title">{% trans "Total Contracts" %}</h5>
+                        <p class="oh-card__value">{{ total_contracts }}</p>
+                    </div>
+                </div>
+                <!-- Active Contracts -->
+                <div class="col-md-3">
+                    <div class="oh-card-dashboard oh-card-dashboard--success">
+                        <h5 class="oh-card__title">{% trans "Active Contracts" %}</h5>
+                        <p class="oh-card__value">{{ active_contracts }}</p>
+                    </div>
+                </div>
+                <!-- Expired Contracts -->
+                <div class="col-md-3">
+                    <div class="oh-card-dashboard oh-card-dashboard--danger">
+                        <h5 class="oh-card__title">{% trans "Expired Contracts" %}</h5>
+                        <p class="oh-card__value">{{ expired_contracts }}</p>
+                    </div>
+                </div>
+            </div>
+    
+         <!-- Filters Section -->
+        <form method="get" class="oh-form mb-4">
+            <div class="row g-3 align-items-end">
+                <!-- Effective Date -->
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">{% trans "Effective Date" %}</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control oh-input w-100">
+                </div>
+
+                <!-- Expiration Date -->
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">{% trans "Expiration Date" %}</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control oh-input w-100">
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <label for="status" class="form-label">{% trans "Status" %}</label>
+                    <select id="status" name="status" class="form-control oh-input w-100 select-widget">
+                        <option value="">{% trans "All" %}</option>
+                        {% for status_value, status_label in status_choices %}
+                        <option value="{{ status_value }}" {% if request.GET.status == status_value|stringformat:"s" %}selected{% endif %}>
+                            {{ status_label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Package Type Filter -->
+                <div class="col-md-3">
+                    <label for="package" class="form-label">{% trans "Package Type" %}</label>
+                    <select id="package" name="package" class="form-control oh-input w-100 select-widget">
+                        <option value="">{% trans "All" %}</option>
+                        {% for package in package_choices %}
+                        <option value="{{ package }}" {% if request.GET.package == package %}selected{% endif %}>
+                            {{ package }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filter Button -->
+                <div class="col-md-3">
+                    <button type="submit" class="oh-btn oh-btn--secondary w-100">{% trans "Filter" %}</button>
+                </div>
+            </div>
+        </form>
+
+            {% if fetch_result %}
+            <div class="alert alert-info">
+            {{ fetch_result }}
+            </div>
+
+            {% endif %}
+
+
+            <div class="table-responsive">
+                <table class="table oh-table">
+                    <thead>
+                        <tr>
+                           
+                            <th>{% trans "Contract Number" %}</th>
+                            <th>{% trans "Contract Signing" %}</th>
+                            <th>{% trans "SME Registration" %}</th>  <!-- ✅ Added New Column -->
+                            <th>{% trans "Incubator No" %}</th>
+                            <th>{% trans "First Party Signatory" %}</th>
+                            <th>{% trans "Second Party Signatory" %}</th>
+                            <th>{% trans "Package" %}</th>
+                            <th>{% trans "Payment Interval" %}</th>
+                            <th>{% trans "Effective Date" %}</th>
+                            <th>{% trans "Expiration Date" %}</th>
+                            <th>{% trans "Monthly Rent" %}</th>                           
+                            <th>{% trans "Export" %}</th>
+                           
+                            <th>{% trans "Invoice" %}</th>
+                           
+                            
+                            <th>{% trans "Edit" %}</th>
+                            <th>{% trans "Remove" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contract in contracts %}
+                        <tr class="{% if contract.business_incubator_number == None %}table-warning{% endif %}">
+                           
+                            <td>  {% if contract.business_incubator_number %}
+                              
+                                {{ contract.contract_number }}
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{% trans "Review Pending" %}</span>
+                            {% endif %}</td>
+                            <td>
+                                <span class="status badge 
+                                    {% if contract.status == 0 %} bg-warning text-dark  
+                                    {% elif contract.status == 1 %}bg-primary   
+                                    {% elif contract.status == 2 %} bg-success 
+                                    {% elif contract.status == 3 %}bg-danger   
+                                    {% else %} bg-success   <!-- Default: 
+                                    {% endif %}">
+                                    {{ contract.get_status_display }}
+                                </span>
+                            </td>
+                             <!-- ✅ New Column: SME Registration -->
+                            <td>
+                                <span class="status badge 
+                                    {% if contract.sme_registration == 'pending' %} bg-warning text-dark  
+                                    {% elif contract.sme_registration == 'in_progress' %} bg-primary   
+                                    {% elif contract.sme_registration == 'completed' %} bg-success 
+                                    {% else %} bg-secondary   
+                                    {% endif %}">
+                                    {{ contract.get_sme_registration_display }}
+                                </span>
+                            </td>
+                            
+                            <td>{{ contract.business_incubator_number }}</td>
+                            <td>{{ contract.first_party_signatory_name }}</td>
+                            <td>{{ contract.second_party_signatory_name }}</td>
+                            <td>{{ contract.package }}</td>
+                            <td>{{ contract.payment_interval }}</td>
+                            <td>{{ contract.contract_effective_date }}</td>
+                            <td>{{ contract.contract_expiration_date }}</td>
+                            <td>{{ contract.monthly_rent_fee }}</td>
+                           
+                            <td>
+                                <a href="{% url 'lamx:contract_pdf' contract.pk %}" target="_blank" class="oh-btn oh-btn--light-bkg w-100 links">
+                                    <ion-icon name="download-outline" role="img" class="md hydrated" style="color: green" aria-label="download outline"></ion-icon>Agreement
+                                </a>
+                                <a href="{% url 'lamx:generate_evacuation_pdf' contract.pk %}" target="_blank" class="oh-btn oh-btn--light-bkg w-100 links">
+                                    <ion-icon name="download-outline" role="img" class="md hydrated" style="color: green" aria-label="download outline"></ion-icon>Evacuation
+                                </a>
+                                
+                            </td>
+                            <td>
+                                {% if contract.business_incubator_number %}
+                                
+                                <a href="{% url 'lamx:create_invoice' contract.contract_number %}" class="oh-btn oh-btn--light-bkg w-100 links">Create Invoice</a>
+                                <a href="{% url 'lamx:contract_invoices' contract.contract_number %}" class="btn btn-primary oh-btn oh-btn--light-bkg w-100 links">
+                                    View Invoices
+                                </a>
+                                {% endif %}
+                         </td>
+                        
+                        
+                            
+                            <td>
+                                
+                                <a href="{% url 'lamx:contract_edit' contract.contract_number %}" class="oh-btn oh-btn--light-bkg w-100">
+                                    <ion-icon name="create-outline" role="img" class="md hydrated" style="color: blue" aria-label="create outline"></ion-icon>
+                                </a>
+                            </td>
+                           
+                            <td>
+                                
+                                <form action="{% url 'lamx:contract_delete' contract.contract_number %}" method="post" style="display:inline;">`n    {% csrf_token %}
+                                    {% csrf_token %}
+                                    <button type="submit" class="oh-btn oh-btn--light-bkg w-100">
+                                        <ion-icon name="trash-outline" role="img" class="md hydrated" aria-label="trash outline"></ion-icon>
+                                    </button>
+                                </form>
+                               
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">
+                                {% trans "No contracts found." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    span.status {
+        color: #fff;
+        padding: 5px 5px;
+        font-size: 10px;
+        text-align: center;
+        display: block;
+        border-radius: 6px;
+    }
+
+</style>
+{% endblock %}
+
+<script>
+    document.querySelectorAll(".create-invoice").forEach(button => {
+        button.addEventListener("click", function() {
+            let contractId = this.getAttribute("data-contract-id");
+
+            // Show a confirmation dialog
+            let confirmAction = confirm("Are you sure you want to create a recurring invoice for this contract?");
+            if (!confirmAction) {
+                return;  // Exit if the user clicks "Cancel"
+            }
+
+            fetch(`/contracts/${contractId}/create-invoice/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("✅ Recurring Invoice Created Successfully: " + data.invoice_number);
+                } else if (data.error) {
+                    alert("❌ Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                alert("❌ Failed to create invoice. Check console for errors.");
+            });
+        });
+    });
+</script>

@@ -1,0 +1,125 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">Journal Entries</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'finx:journal_entry_create' %}" class="oh-btn oh-btn--secondary me-2">
+                <ion-icon name="add-outline" role="img" class="md hydrated me-1"></ion-icon> Add New Entry
+            </a>
+            <a href="{% url 'finx:export_journal_entries' %}" class="oh-btn oh-btn--secondary">Export</a>
+        </div>
+        </div>
+         <!-- Summary Section -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="oh-card oh-card--highlight">
+                    <h5 class="oh-card__title">Total Debits</h5>
+                    <p class="oh-card__value">BHD {{ total_debits|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="oh-card oh-card--highlight">
+                    <h5 class="oh-card__title">Total Credits</h5>
+                    <p class="oh-card__value">BHD {{ total_credits|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="oh-card oh-card--highlight">
+                    <h5 class="oh-card__title">Unbalanced Entries</h5>
+                    <p class="oh-card__value text-danger">{{ unbalanced_entries_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Filter Section -->
+        <form method="get" class="oh-form mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control oh-input w-100">
+                </div>
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control oh-input w-100">
+                </div>
+                <div class="col-md-3">
+                    <label for="account" class="form-label">Account</label>
+                    <select id="account" name="account" class="form-control oh-input select-widget">
+                        <option value="">All Accounts</option>
+                        {% for account in accounts %}
+                        <option value="{{ account.id }}" {% if account.id|stringformat:"s" == request.GET.account %}selected{% endif %}>
+                            {{ account.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="oh-btn oh-btn--secondary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Journal Entries Table -->
+        <div class="table-responsive">
+            <table class="table oh-table">
+                <thead>
+                    <tr>
+                        <th>Entry No</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Debit Account</th>
+                        <th>Credit Account</th>
+                        <th>Amount (BHD)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in journal_entries %}
+                    <tr>
+                        <td>{{ entry.number }}</td>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.description }}</td>
+                        <td>{{ entry.debit_account }}</td>
+                        <td>{{ entry.credit_account }}</td>
+                        <td>{{ entry.amount|floatformat:2 }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                              {% if entry.is_active %}
+                             <a href="{% url 'finx:journal_entry_reverse' entry.id %}" class="btn btn-warning">  <ion-icon name="trash-outline" style="color: red;"></ion-icon></a>
+                            {%endif%}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No journal entries found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center align-items-center mt-4">
+    {% if journal_entries.has_previous %}
+        <a href="?page=1" class="oh-btn oh-btn--light me-2">&laquo; First</a>
+        <a href="?page={{ journal_entries.previous_page_number }}" class="oh-btn oh-btn--light me-2">Previous</a>
+    {% endif %}
+    <span class="current fw-bold mx-2">
+        Page {{ journal_entries.number }} of {{ journal_entries.paginator.num_pages }}
+    </span>
+    {% if journal_entries.has_next %}
+        <a href="?page={{ journal_entries.next_page_number }}" class="oh-btn oh-btn--light me-2">Next</a>
+        <a href="?page={{ journal_entries.paginator.num_pages }}" class="oh-btn oh-btn--light">&raquo; Last</a>
+    {% endif %}
+</div>
+
+
+
+{% endblock %}
+

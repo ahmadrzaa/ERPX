@@ -1,0 +1,82 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">Records</h4>
+            <a href="{% url 'crmx:crm_create' %}" class="oh-btn oh-btn--secondary">
+                <ion-icon name="add-outline" role="img" class="md hydrated me-1"></ion-icon> Add New Record
+            </a>
+        </div>
+        <form method="get" action="{% url 'crmx:crm_list' %}" class="mb-4">
+
+            <div class="row">
+                <div class="col-12 col-md-4 mb-3">
+                    <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by name, email, or phone" class="form-control oh-input w-100" />
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <select name="status" class="form-select oh-input w-100 select-widget">
+                        <option value="">-- Filter by Status --</option>
+                        <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>New</option>
+                        <option value="contacted" {% if request.GET.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                        <option value="qualified" {% if request.GET.status == 'qualified' %}selected{% endif %}>Qualified</option>
+                        <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="follow_up" {% if request.GET.status == 'follow_up' %}selected{% endif %}>Follow Up</option>
+                        <option value="awaiting_response" {% if request.GET.status == 'awaiting_response' %}selected{% endif %}>Awaiting Response</option>
+                        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                
+                <div class="col-12 col-md-4 mb-3 d-flex align-items-center">
+                    <button type="submit" class="oh-btn oh-btn--secondary me-2">Filter</button>
+                    <a href="{% url 'crmx:crm_list' %}" class="oh-btn oh-btn--light">Clear</a>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive mt-4">
+            <table class="table oh-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.customer_name }}</td>
+                        <td>{{ record.email }}</td>
+                        <td>{{ record.phone }}</td>
+                        <td>
+                            <span class="oh-badge oh-badge--{% if record.status == 'new' %}primary{% elif record.status == 'closed' %}success{% elif record.status == 'inactive' %}danger{% else %}secondary{% endif %}">
+                                {{ record.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <a href="{% url 'crmx:crm_edit' record.id %}" class="oh-btn oh-btn--light-bkg me-2">  <ion-icon name="create-outline" style="color: blue;"></ion-icon></a>
+                                <form action="{% url 'crmx:crm_delete' record.id %}" method="post" style="display: inline;">`n    {% csrf_token %}
+                                    {% csrf_token %}
+                                    <button type="submit" class="oh-btn oh-btn--light-bkg">  <ion-icon name="trash-outline" style="color: red;"></ion-icon>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

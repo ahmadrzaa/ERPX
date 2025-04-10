@@ -1,0 +1,182 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">Invoices</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'finx:invoice_create' %}" class="oh-btn oh-btn--secondary me-2">
+                <ion-icon name="add-outline" class="me-1"></ion-icon> Add New Invoice
+            </a>
+            <a href="{% url 'finx:export_invoices' %}" class="oh-btn oh-btn--secondary">Export Invoices</a>
+
+        </div>
+        </div>
+   
+        <div class="row mb-4">
+            <!-- Total Invoices -->
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--info">
+                    <h5 class="oh-card__title">Total Invoices</h5>
+                    <p class="oh-card__value">{{ total_invoices }}</p>
+                </div>
+            </div>
+            <!-- Unpaid Invoices -->
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--warning">
+                    <h5 class="oh-card__title">Unpaid Invoices</h5>
+                    <p class="oh-card__value">{{ unpaid_count }}</p>
+                </div>
+            </div>
+            <!-- Total Paid -->
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--success">
+                    <h5 class="oh-card__title">Total Paid</h5>
+                    <p class="oh-card__value">BHD {{ total_paid|floatformat:2 }}</p>
+                </div>
+            </div>
+            <!-- Total Unpaid -->
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--danger">
+                    <h5 class="oh-card__title">Total Unpaid</h5>
+                    <p class="oh-card__value">BHD {{ total_unpaid|floatformat:2 }}</p>
+                </div>
+            </div>
+            <!-- Total VAT Amount -->
+            <div class="col-md-2">
+                <div class="oh-card-dashboard oh-card-dashboard--neutral">
+                    <h5 class="oh-card__title">Total VAT Amount</h5>
+                    <p class="oh-card__value">BHD {{ total_vat|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+        
+        
+
+         <!-- Filters Section -->
+         <form method="get" class="oh-form mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="form-control oh-input w-100">
+                </div>
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="form-control oh-input w-100">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-control oh-input select-widget">
+                        <option value="">All Statuses</option>
+                        <option value="unpaid" {% if request.GET.status == "unpaid" %}selected{% endif %}>Unpaid</option>
+                        <option value="paid" {% if request.GET.status == "paid" %}selected{% endif %}>Paid</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="oh-btn oh-btn--secondary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table oh-table">
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Reference</th>
+                        <th>Customer Name</th>
+                        <th>Client Email</th>
+                        <th style="width: 7%;" >Due Date</th>
+                        <th>VAT Amount (BHD)</th>
+                        <th>Total Amount (BHD)</th>
+                        <th>Status</th>
+                        <th style="width: 30%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.number }}</td>
+                        <td>{{ invoice.reference }}</td>
+                        <td>{{ invoice.client_name }}</td>
+                        <td>{{ invoice.client_email }}</td>
+                        <td>{{ invoice.due_date }}</td>
+                        <td>{{ invoice.vat_amount|floatformat:2 }}</td>
+                        <td>{{ invoice.total_amount|floatformat:2 }}</td>
+                        <td>{{ invoice.status }}</td>
+                           
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">                            
+                                {% if invoice.status == "unpaid" %}
+                                    <a href="{% url 'finx:mark_invoice_paid' invoice.pk %}" class="btn btn-success mark_as_paid">  <ion-icon name="checkmark-outline" style="color: green;"></ion-icon>Mark as Paid</a>
+                                    <a href="{% url 'finx:print_invoice' invoice.id %}" target="_blank" class="btn btn-primary print_btn"> Print Invoice</a>
+
+                                    {% endif %}
+                                    
+                                    {% if invoice.status == "paid" %}                                
+                                 
+                                    <!-- Custom Changes: Manual Payment Date Input -->
+                                        <form method="post" action="{% url 'finx:set_payment_date' invoice.id %}" class="d-flex align-items-center payment_datewrap">`n    {% csrf_token %}
+                                            {% csrf_token %}
+                                            <input type="date" name="payment_date" required class="form-control w-auto" value="{% if invoice.payment_date %}{{ invoice.payment_date|date:'Y-m-d' }}{% endif %}">
+                                            <button type="submit" class="btn btn-primary "><ion-icon name="checkmark-outline" style="color: green;" role="img" class="md hydrated" aria-label="checkmark outline"></ion-icon></button>
+                                        </form>
+
+                                        <a href="{% url 'finx:print_receipt' invoice.id %}" target="_blank" class="btn btn-primary print_btn">Print Receipt</a>
+
+                                      
+                                    {% endif %}
+                                <form action="{% url 'finx:invoice_delete' invoice.id %}" method="post" style="display: inline;">`n    {% csrf_token %}
+                                    {% csrf_token %}
+                                    <button type="submit" class="oh-btn oh-btn--light-bkg">
+                                        <ion-icon name="trash-outline" style="color: red;"></ion-icon>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No invoices found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+          <!-- Pagination -->
+          <div class="d-flex justify-content-end align-items-center mt-4">
+            {% if invoices.has_previous %}
+                <a href="?page=1" class="oh-btn oh-btn--light me-2">&laquo; First</a>
+                <a href="?page={{ invoices.previous_page_number }}" class="oh-btn oh-btn--light me-2">Previous</a>
+            {% endif %}
+            <span class="current fw-bold mx-2">
+                Page {{ invoices.number }} of {{ invoices.paginator.num_pages }}
+            </span>
+            {% if invoices.has_next %}
+                <a href="?page={{ invoices.next_page_number }}" class="oh-btn oh-btn--light me-2">Next</a>
+                <a href="?page={{ invoices.paginator.num_pages }}" class="oh-btn oh-btn--light">&raquo; Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+
+.payment_datewrap input.form-control.w-auto {
+    padding: 5px 15px;
+    border: 1px solid #ddd;
+}
+    form.d-flex.align-items-center.payment_datewrap button.btn.btn-primary {
+        border: 1px solid #ddd;
+        padding: 1px 8px;
+        font-size: 27px;
+        background: transparent;
+        margin-right: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+</style>
+{% endblock %}

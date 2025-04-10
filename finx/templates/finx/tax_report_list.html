@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">Tax Reports</h4>
+            <a href="{% url 'finx:tax_report_create' %}" class="oh-btn oh-btn--secondary">
+                <ion-icon name="add-outline" role="img" class="md hydrated me-1"></ion-icon> Add New Tax Report
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table oh-table">
+                <thead>
+                    <tr>
+                        <th>Report Date</th>
+                        <th>VAT Collected (BHD)</th>
+                        <th>VAT Paid (BHD)</th>
+                        <th>Zakat Due (BHD)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in tax_reports %}
+                    <tr>
+                        <td>{{ report.report_date }}</td>
+                        <td>{{ report.vat_collected }}</td>
+                        <td>{{ report.vat_paid }}</td>
+                        <td>{{ report.zakat_due }}</td>
+                        <td>
+                            <div class="d-flex">
+                                <a href="{% url 'finx:tax_report_edit' report.id %}" class="oh-btn oh-btn--light-bkg me-2"><ion-icon name="create-outline" style="color: blue;" role="img" class="md hydrated" aria-label="create outline"></ion-icon></a>
+                                <form action="{% url 'finx:tax_report_delete' report.id %}" method="post" style="display: inline;">`n    {% csrf_token %}
+                                    {% csrf_token %}
+                                    <button type="submit" class="oh-btn oh-btn--light-bkg"><ion-icon name="trash-outline" style="color: red;" role="img" class="md hydrated" aria-label="trash outline"></ion-icon></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No tax reports found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

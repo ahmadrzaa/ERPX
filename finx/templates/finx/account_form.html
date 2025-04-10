@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">
+                {% if form.instance.pk %} Edit Account {% else %} Add New Account {% endif %}
+            </h4>
+            <a href="{% url 'finx:account_list' %}" class="oh-btn oh-btn--light">
+                <ion-icon name="arrow-back-outline" class="me-1"></ion-icon> Back to List
+            </a>
+        </div>
+        <form method="post" class="oh-form">`n    {% csrf_token %}
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="name" class="form-label">Account Name</label>
+                    {{ form.name }}
+                    <small class="form-text text-muted">Enter the name of the account (e.g., Cash, Accounts Receivable).</small>
+                    {{ form.name.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="account_type" class="form-label">Account Type</label>
+                    {{ form.account_type }}
+                    <small class="form-text text-muted">Select the type of account (e.g., Asset, Liability).</small>
+                    {{ form.account_type.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="balance" class="form-label">Opening Balance</label>
+                    {{ form.balance }}
+                    <small class="form-text text-muted">Specify the starting balance for this account.</small>
+                    {{ form.balance.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="currency" class="form-label">Currency</label>
+                    {{ form.currency }}
+                    <small class="form-text text-muted">Select the currency for this account (default is BHD).</small>
+                    {{ form.currency.errors }}
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    {{ form.description }}
+                    <small class="form-text text-muted">Provide additional details about the account (optional).</small>
+                    {{ form.description.errors }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="oh-btn oh-btn--secondary">
+                    {% if form.instance.pk %} Update {% else %} Save {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

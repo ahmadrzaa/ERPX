@@ -1,0 +1,329 @@
+{% extends "index.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<section class="oh-wrapper oh-main__topbar oh-profile-section__topbar" x-data="{searchShow: false}">
+    <div class="oh-main__titlebar oh-main__titlebar--left">
+        <h1 class="oh-main__titlebar-title fw-bold mb-0">{% if form.instance.pk %}{% trans "Edit Contract" %}{% else %}{% trans "Add New Contract" %}{% endif %}</h1>
+    </div>
+</section>
+<div class="oh-wrapper">
+  <div class="oh-general__tab-target oh-profile-section mb-4">
+    <div class="oh-profile-section__card">
+        <form action="{% if form.instance.pk %}{% url 'lamx:contract_edit' form.instance.pk %}{% else %}{% url 'lamx:contract_create' %}{% endif %}" method="post" enctype="multipart/form-data">`n    {% csrf_token %}
+            {% csrf_token %}
+            <div id="contractMessage"></div>
+            <div class="row">
+                <!-- Contract Details -->
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="status">{% trans "Contract Status" %}</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+
+
+                <!-- ✅ New Field: SME Registration -->
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="sme_registration">{% trans "SME Registration" %}</label>
+                    {{ form.sme_registration }}
+                    {{ form.sme_registration.errors }}
+                </div>
+                
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="package">{% trans "Package" %}</label>
+                    {{ form.package }}
+                    {{ form.package.errors }}
+                </div>
+             
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label">{% trans "Assigned Incubator Number" %}</label>
+                    <input type="text" id="assigned_incubator" class="form-control oh-input w-100 read_only" value="{{ assigned_incubator }}" readonly>
+
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="business_incubator_number">{% trans "Available Business Incubator Numbers" %}</label>
+                    {{ form.business_incubator_number }}
+                    {{ form.business_incubator_number.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="monthly_rent_fee">{% trans "Monthly Rent Fee" %}</label>
+                    {{ form.monthly_rent_fee }}
+                    {{ form.monthly_rent_fee.errors }}
+                </div>
+                
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="contract_duration">{% trans "Contract Duration (Months)" %}</label>
+                    {{ form.contract_duration }}
+                    {{ form.contract_duration.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="contract_effective_date">{% trans "Contract Effective Date" %}</label>
+                    {{ form.contract_effective_date }}
+                    {{ form.contract_effective_date.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="contract_expiration_date">{% trans "Contract Expiration Date" %}</label>
+                    {{ form.contract_expiration_date }}
+                    {{ form.contract_expiration_date.errors }}
+                </div>
+
+                   <!-- Payment and Company Details -->
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="payment_interval">{% trans "Payment Interval" %}</label>
+                    {{ form.payment_interval }}
+                    {{ form.payment_interval.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="company_type">{% trans "Company Type" %}</label>
+                    {{ form.company_type }}
+                    {{ form.company_type.errors }}
+                </div>
+                <!-- First Party Information -->
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="first_party_signatory_name">{% trans "First Party Authorized Signatory (Name)" %}</label>
+                    {{ form.first_party_signatory_name }}
+                    {{ form.first_party_signatory_name.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="first_party_signatory_name_ar">{% trans "First Party Name (Arabic)" %}</label>
+                    {{ form.first_party_signatory_name_ar }}
+                    {{ form.first_party_signatory_name_ar.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="first_party_designation">{% trans "First Party Designation" %}</label>
+                    {{ form.first_party_designation }}
+                    {{ form.first_party_designation.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="first_party_designation_ar">{% trans "First Party Title (Arabic)" %}</label>
+                    {{ form.first_party_designation_ar }}
+                    {{ form.first_party_designation_ar.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="first_party_signature_date">{% trans "First Party Signature Date" %}</label>
+                    {{ form.first_party_signature_date }}
+                    {{ form.first_party_signature_date.errors }}
+                </div>
+                   <!-- Financial Details -->
+                <div class="col-12 col-sm-12 col-md-6">
+                
+                
+                </div>
+                <!-- Second Party Information -->
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_signatory_name">{% trans "Second Party Authorized Signatory (Name)" %}</label>
+                    {{ form.second_party_signatory_name }}
+                    {{ form.second_party_signatory_name.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_signatory_name_ar">{% trans "Second Party Name (Arabic)" %}</label>
+                    {{ form.second_party_signatory_name_ar }}
+                    {{ form.second_party_signatory_name_ar.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_title">{% trans "Second Party Title (English)" %}</label>
+                    {{ form.second_party_title }}
+                    {{ form.second_party_title.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_title_ar">{% trans "Second Party Title (Arabic)" %}</label>
+                    {{ form.second_party_title_ar }}
+                    {{ form.second_party_title_ar.errors }}
+                </div>
+                
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_signature_date">{% trans "Second Party Signature Date" %}</label>
+                    {{ form.second_party_signature_date }}
+                    {{ form.second_party_signature_date.errors }}
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_personal_id">{% trans "Second Party Personal ID" %}</label>
+                    {{ form.second_party_personal_id }}
+                    {{ form.second_party_personal_id.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_phone_number">{% trans "Second Party Phone Number" %}</label>
+                    {{ form.second_party_phone_number }}
+                    {{ form.second_party_phone_number.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_email">{% trans "Second Party Email" %}</label>
+                    {{ form.second_party_email }}
+                    {{ form.second_party_email.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_commercial_name">{% trans "Second Party Commercial Name (English)" %}</label>
+                    {{ form.second_party_commercial_name }}
+                    {{ form.second_party_commercial_name.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_commercial_name_ar">{% trans "Second Party Commercial Name (Arabic)" %}</label>
+                    {{ form.second_party_commercial_name_ar }}
+                    {{ form.second_party_commercial_name_ar.errors }}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                    <label class="oh-label" for="second_party_commercial_registry_number">{% trans "Second Party Commercial Registry Number" %}</label>
+                    {{ form.second_party_commercial_registry_number }}
+                    {{ form.second_party_commercial_registry_number.errors }}
+                </div>
+             
+                <div class="col-12">
+                    <label class="oh-label" for="need_more_assistance">{% trans "Need More Assistance" %}</label>
+                    {{ form.need_more_assistance }}
+                    {{ form.need_more_assistance.errors }}
+                </div>
+
+
+                            
+                        <!-- Attachments -->
+            <div class="col-12 col-sm-12 col-md-6">
+                {% if contract and contract.cpr_copy %}
+                <label class="oh-label">{% trans "CPR Copy of Owner" %}</label>
+                <p class="mt-2">
+                    <a href="https://lamx.intermid.net/{{ contract.cpr_copy }}" target="_blank" download>
+                        {% trans "Download CPR Copy" %}
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-6">
+                {% if contract and contract.cr_copy %}
+                <label class="oh-label">{% trans "CR Copy" %}</label>
+                <p class="mt-2">
+                    <a href="https://lamx.intermid.net/{{ contract.cr_copy }}" target="_blank" download>
+                        {% trans "Download CR Copy" %}
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-6">
+                {% if contract and contract.cr_extract %}
+                <label class="oh-label">{% trans "CR Extract" %}</label>
+                <p class="mt-2">
+                    <a href="https://lamx.intermid.net/{{ contract.cr_extract }}" target="_blank" download>
+                        {% trans "Download CR Extract" %}
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-6">
+                {% if contract and contract.business_brief %}
+                <label class="oh-label">{% trans "Business Brief" %}</label>
+                <p class="mt-2">
+                    <a href="https://lamx.intermid.net/{{ contract.business_brief }}" target="_blank" download>
+                        {% trans "Download Business Brief" %}
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+
+                
+            <!-- Extra Attachments Section -->
+            <div class="col-12 col-md-6">
+                {% if  extra_attachments %}
+                <label class="oh-label">{% trans "Extra Attachments" %}</label>
+                <ul class="mt-2 extra_attach" style="list-style: decimal;">
+                    {% for extra_file in extra_attachments %}
+                    <li>
+                        <a href="https://lamx.intermid.net/{{ extra_file }}" target="_blank" download>
+                            {{ extra_file }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <div class="col-3 col-md-3">
+                <a href="https://lamx.intermid.net/attachments?id={{ contract.contract_number }}" target="_blank" class="oh-btn oh-btn--secondary oh-btn--w-100-resp">
+                    <ion-icon name="add-outline" role="img" class="md hydrated" aria-label="add outline"></ion-icon>{% trans  "Add attachments" %}
+                </a>
+               </div>
+            </div>
+
+
+            </div>
+            <hr class="mt-5 mb-3">
+            <div class="w-100 d-flex align-items-center justify-content-end">
+                <button type="submit" class="oh-btn oh-btn--secondary oh-btn--w-100-resp">
+                    {% trans "Save Changes" %}
+                </button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the select elements
+        const firstPartyName = document.getElementById("id_first_party_signatory_name");
+        const firstPartyNameAr = document.getElementById("id_first_party_signatory_name_ar");
+
+        // Function to sync selection by index
+        function syncArabicName() {
+            const selectedIndex = firstPartyName.selectedIndex;
+            if (selectedIndex >= 0) {
+                firstPartyNameAr.selectedIndex = selectedIndex;
+            }
+        }
+
+        // Attach event listener
+        firstPartyName.addEventListener("change", syncArabicName);
+
+        // Set initial value when page loads
+        syncArabicName();
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const contractDuration = document.getElementById("id_contract_duration");
+        const contractEffectiveDate = document.getElementById("id_contract_effective_date");
+        const contractExpirationDate = document.getElementById("id_contract_expiration_date");
+
+        function calculateExpirationDate() {
+            const duration = parseInt(contractDuration.value, 10);
+            const effectiveDate = new Date(contractEffectiveDate.value);
+
+            if (!isNaN(duration) && contractEffectiveDate.value) {
+                effectiveDate.setMonth(effectiveDate.getMonth() + duration);
+
+                // Subtract one day
+                effectiveDate.setDate(effectiveDate.getDate() - 1);
+
+                // Format YYYY-MM-DD for input type="date"
+                const formattedDate = effectiveDate.toISOString().split("T")[0];
+                contractExpirationDate.value = formattedDate;
+            }
+        }
+
+        // Attach event listeners
+        contractEffectiveDate.addEventListener("change", calculateExpirationDate);
+        contractDuration.addEventListener("change", calculateExpirationDate);
+    });
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    
+        document.querySelectorAll("ul.extra_attach li a").forEach(function (link) {
+            let href = link.getAttribute("href"); 
+            if (href) {
+                let parts = href.split("/"); 
+                let lastPart = parts.pop(); 
+                link.textContent = lastPart; 
+            }
+        });
+    });
+    
+</script>
+
+
+{% endblock %}
+
+

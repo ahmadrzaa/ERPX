@@ -1,0 +1,260 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">
+                {% if form.instance.pk %} Edit Invoice {% else %} Add New Invoice {% endif %}
+            </h4>
+            <a href="{% url 'finx:invoice_list' %}" class="oh-btn oh-btn--light">
+                <ion-icon name="arrow-back-outline" class="me-1"></ion-icon> Back to List
+            </a>
+        </div>
+        <form method="post" class="oh-form">`n    {% csrf_token %}
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="number" class="form-label">Invoice Number</label>
+                    {{ form.number }}
+                    {{ form.number.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="reference" class="form-label">Reference</label>
+                    {{ form.reference }}
+                    {{ form.reference.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="client_name" class="form-label">Customer Name</label>
+                    {{ form.client_name }}
+                    {{ form.client_name.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="client_email" class="form-label">Customer Email</label>
+                    {{ form.client_email }}
+                    {{ form.client_email.errors }}
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="issue_date" class="form-label">Issue Date</label>
+                    {{ form.issue_date }}
+                    {{ form.issue_date.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="due_date" class="form-label">Due Date</label>
+                    {{ form.due_date }}
+                    {{ form.due_date.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="currency" class="form-label">Currency</label>
+                    {{ form.currency }}
+                    {{ form.currency.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="id_vat_exempt" class="form-label align_center">VAT Exempt
+                        {{ form.vat_rate }}  {{ form.vat_exempt }}</label>
+                </div>
+              
+            </div>
+            <hr class="my-4">
+            <h5 class="mb-3">Items</h5>
+            <input type="hidden" id="id_line_items" name="line_items" value="{{ form.initial.line_items|default:'[]' }}">
+            <div id="line-items-container" class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Discount (%)</th>
+                            <th>Tax Rate  (%)</th>
+                            <th>Line Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="line-item">
+                            <td><input type="text" name="line_items[][item]" class="form-control oh-input w-100" placeholder="Item"></td>
+                            <td><input type="text" name="line_items[][description]" class="form-control oh-input w-100" placeholder="Item description"></td>
+                            <td><input type="number" name="line_items[][quantity]" class="form-control oh-input w-100 line-quantity" placeholder="0" min="0" step="1"></td>
+                            <td><input type="number" name="line_items[][unit_price]" class="form-control oh-input w-100 line-unit-price" placeholder="0.00" min="0" step="0.01"></td>
+                            <td><input type="number" name="line_items[][discount]" class="form-control oh-input w-100 line-discount" placeholder="0.00" min="0" step="0.01"></td>
+                            <td><input type="number" name="line_items[][tax_rate]" class="form-control oh-input w-100 line-tax-rate" placeholder="0.00" min="0" step="0.01"></td>
+                            <td><input type="text"  name="line_items[][line_total]"  class="form-control oh-input w-100 line-total read_only" readonly></td>
+                            <td><button type="button" class="oh-btn oh-btn--secondary btn remove-line-item">-</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" id="add-line-item" class="oh-btn oh-btn--light btn-sm">+Add Item</button>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="oh-card oh-card--info">
+                        <div class="oh-card__body text-center">
+                            <h6 class="oh-card__title oh-text--lg">Subtotal</h6>
+                            <p class="oh-card__value">
+                                <input type="text" id="subtotal"  name="amount" class="form-control oh-input oh-input--lg text-center w-100 fw-bold border-0 bg-transparent" readonly>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="oh-card oh-card--warning">
+                        <div class="oh-card__body text-center">
+                            <h6 class="oh-card__title oh-text--lg">Total Tax</h6>
+                            <p class="oh-card__value">
+                                <input type="text" id="total-tax"  class="form-control oh-input oh-input--lg text-center w-100 fw-bold border-0 bg-transparent" readonly>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="oh-card oh-card--success">
+                        <div class="oh-card__body text-center">
+                            <h6 class="oh-card__title oh-text--lg">Total Amount </h6>
+                            <p class="oh-card__value">
+                                <input type="text" id="total-amount" class="form-control oh-input oh-input--lg text-center w-100 fw-bold border-0 bg-transparent" readonly>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="oh-btn oh-btn--secondary">
+                    {% if form.instance.pk %} Update {% else %} Save {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('line-items-container');
+        const addButton = document.getElementById('add-line-item');
+        const vatExemptCheckbox = document.getElementById('id_vat_exempt');
+        const defaultVATRate = parseFloat(document.getElementById('id_vat_rate').value ); 
+        console.log(defaultVATRate);
+
+        const lineItemsField = document.getElementById('id_line_items');
+
+        function serializeLineItems() {
+            const lineItems = [];
+            container.querySelectorAll('.line-item').forEach(row => {
+                const item = row.querySelector('input[placeholder="Item"]')?.value || '';
+                const description = row.querySelector('input[placeholder="Description"]')?.value || '';
+                const quantity = parseFloat(row.querySelector('.line-quantity')?.value) || 0;
+                const unitPrice = parseFloat(row.querySelector('.line-unit-price')?.value) || 0;
+                const discount = parseFloat(row.querySelector('.line-discount')?.value) || 0;
+                const taxRate = parseFloat(row.querySelector('.line-tax-rate')?.value) || 0;
+                const lineTotal = (quantity * unitPrice * (1 - discount / 100) * (1 + taxRate / 100)).toFixed(2);
+        
+                if (item || description || quantity || unitPrice || discount || taxRate) {
+                    lineItems.push({
+                        item,
+                        description,
+                        quantity,
+                        unit_price: unitPrice,
+                        discount,
+                        tax_rate: taxRate,
+                        line_total: lineTotal,
+                    });
+                }
+            });
+        
+            lineItemsField.value = JSON.stringify(lineItems);
+        }
+        
+
+        function calculateTotals() {
+            let subtotal = 0;
+            let totalTax = 0;
+
+            container.querySelectorAll('.line-item').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.line-quantity').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('.line-unit-price').value) || 0;
+                const discount = parseFloat(row.querySelector('.line-discount').value) || 0;
+                let taxRate = parseFloat(row.querySelector('.line-tax-rate').value) || 0;
+
+                // Calculate line total
+                const lineTotalBeforeTax = (quantity * unitPrice) * (1 - discount / 100);
+                const lineTax = lineTotalBeforeTax * (taxRate / 100);
+                const lineTotal = lineTotalBeforeTax + lineTax;
+
+                // Update line total
+                row.querySelector('.line-total').value = lineTotal.toFixed(2);
+
+                // Accumulate totals
+                subtotal += lineTotalBeforeTax;
+                totalTax += lineTax;
+            });
+
+            // Update totals
+            document.getElementById('subtotal').value = subtotal.toFixed(2);
+            document.getElementById('total-tax').value = totalTax.toFixed(2);
+            document.getElementById('total-amount').value = (subtotal + totalTax).toFixed(2);
+            serializeLineItems();
+        }
+
+        function updateVATStatus() {
+            const isVatExempt = vatExemptCheckbox.checked;
+
+            container.querySelectorAll('.line-item').forEach(row => {
+                const taxRateField = row.querySelector('.line-tax-rate');
+                if (isVatExempt) {
+                    taxRateField.value = '0.00'; // Set VAT to 0 if VAT Exempt is checked
+                } else {
+                    taxRateField.value = defaultVATRate.toFixed(2); // Set to default VAT rate if unchecked
+                }
+            });
+
+            calculateTotals(); // Recalculate totals after VAT change
+        }
+
+        // Add a new line item row
+        addButton.addEventListener('click', function() {
+            const row = container.querySelector('tbody .line-item').cloneNode(true);
+            row.querySelectorAll('input').forEach(input => input.value = '');
+            row.querySelector('.line-tax-rate').value = vatExemptCheckbox.checked
+                ? '0.00' // Set VAT to 0 if VAT Exempt is checked
+                : defaultVATRate.toFixed(2); // Set to default VAT rate if unchecked
+            container.querySelector('tbody').appendChild(row);
+        });
+
+        // Remove a line item
+        container.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-line-item')) {
+                const lineItems = container.querySelectorAll('.line-item');
+                if (lineItems.length > 1) {
+                    event.target.closest('.line-item').remove();
+                    calculateTotals();
+                } else {
+                    alert('You cannot delete the default row.');
+                }
+            }
+        });
+
+        // Calculate totals on input change
+        container.addEventListener('input', function(event) {
+            if (event.target.closest('.line-item')) {
+                calculateTotals();
+            }
+        });
+
+        // Update VAT status when VAT Exempt checkbox changes
+        vatExemptCheckbox.addEventListener('change', updateVATStatus);
+
+        // Initialize VAT rates for all rows on page load
+        updateVATStatus();
+    });
+</script>
+
+
+{% endblock %}

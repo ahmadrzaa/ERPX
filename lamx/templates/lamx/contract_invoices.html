@@ -1,0 +1,96 @@
+{% extends "index.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-general__tab-target oh-profile-section mb-4">
+        <div class="oh-profile-section__card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="oh-profile-section__title">
+                    {% trans "Invoices for Contract" %} {{ contract.contract_number }}
+                </h4>
+                <a href="{% url 'lamx:contract_list' %}" class="oh-btn oh-btn--secondary oh-btn--shadow">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                    {% trans "Back to Contracts" %}
+                </a>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="oh-card-dashboard oh-card-dashboard--info">
+                        <h5 class="oh-card__title">{% trans "Total Invoices" %}</h5>
+                        <p class="oh-card__value">{{ total_invoices }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="oh-card-dashboard oh-card-dashboard--success">
+                        <h5 class="oh-card__title">{% trans "Paid Invoices" %}</h5>
+                        <p class="oh-card__value">{{ paid_invoices }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="oh-card-dashboard oh-card-dashboard--danger">
+                        <h5 class="oh-card__title">{% trans "Unpaid Invoices" %}</h5>
+                        <p class="oh-card__value">{{ unpaid_invoices }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Table -->
+            <div class="table-responsive">
+                <table class="table oh-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Invoice Number" %}</th>
+                            <th>{% trans "Reference" %}</th>
+                            <th>{% trans "Amount" %}</th>
+                            <th>{% trans "Due Date" %}</th>
+                        
+                            <th>{% trans "Status" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.number }}</td>
+                            <td>{{ invoice.reference }}</td>
+                            <td>{{ invoice.amount }}</td>
+                            <td>{{ invoice.due_date }}</td>
+                           
+                            <td>
+                                <span class="status badge 
+                                    {% if invoice.status == 'unpaid' %} bg-danger
+                                    {% elif invoice.status == 'paid' %} bg-success
+                                    {% else %} bg-warning
+                                    {% endif %}">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                {% trans "No invoices found for this contract." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    span.status {
+        color: #fff;
+        padding: 5px 10px;
+        font-size: 12px;
+        text-align: center;
+        display: block;
+        border-radius: 6px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">Accounts</h4>
+            <a href="{% url 'finx:account_create' %}" class="oh-btn oh-btn--secondary">
+                <ion-icon name="add-outline" class="me-1"></ion-icon> Add New Account
+            </a>
+        </div>
+
+        <!-- Filters -->
+        <form method="get" class="row mb-4" action="">
+
+            <div class="col-md-4">
+                <select name="account_type" class="form-control oh-input w-100 select-widget">
+                    <option value="">Filter by Account Type</option>
+                    <option value="asset" {% if request.GET.account_type == "asset" %}selected{% endif %}>Assets</option>
+                    <option value="liability" {% if request.GET.account_type == "liability" %}selected{% endif %}>Liabilities</option>
+                    <option value="revenue" {% if request.GET.account_type == "revenue" %}selected{% endif %}>Revenue</option>
+                    <option value="equity" {% if request.GET.account_type == "equity" %}selected{% endif %}>Equity</option>
+                    <option value="expense" {% if request.GET.account_type == "expense" %}selected{% endif %}>expense</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="min_balance" class="form-control oh-input w-100"
+                    placeholder="Min Balance" value="{{ request.GET.min_balance }}">
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="max_balance" class="form-control oh-input w-100"
+                    placeholder="Max Balance" value="{{ request.GET.max_balance }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="oh-btn oh-btn--primary w-100">Apply Filters</button>
+            </div>
+        </form>
+
+         <!-- Summary Section -->
+         <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="oh-card oh-card--highlight">
+                    <h5 class="oh-card__title">Total Assets</h5>
+                    <p class="oh-card__value">BHD {{ total_assets|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="oh-card oh-card--highlight">
+                    <h5 class="oh-card__title">Total Liabilities</h5>
+                    <p class="oh-card__value">BHD {{ total_liabilities|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="oh-card oh-card--highlight">
+                    <h5 class="oh-card__title">Total Revenue</h5>
+                    <p class="oh-card__value {% if total_revenue < 0 %}text-danger{% endif %}">
+                        BHD {{ total_revenue|floatformat:2 }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="table-responsive">
+            <table class="table oh-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Balance (BHD)</th>
+                        <th>Currency</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td>{{ account.name }}</td>
+                        <td>{{ account.get_account_type_display }}</td>
+                        <td>{{ account.balance|floatformat:2 }}</td>
+                        <td>{{ account.currency }}</td>
+                        <td>{{ account.description|default:"-" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <a href="{% url 'finx:account_edit' account.id %}" class="oh-btn oh-btn--light-bkg me-2">
+                                    <ion-icon name="create-outline" style="color: blue;"></ion-icon>
+                                </a>
+                                <form action="{% url 'finx:account_delete' account.id %}" method="post" style="display: inline;">`n    {% csrf_token %}
+                                    {% csrf_token %}
+                                    <button type="submit" class="oh-btn oh-btn--light-bkg">
+                                        <ion-icon name="trash-outline" style="color: red;"></ion-icon>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No accounts found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+               
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">
+                {% if form.instance.pk %} Edit Tax Report {% else %} Add New Tax Report {% endif %}
+            </h4>
+            <a href="{% url 'finx:tax_report_list' %}" class="oh-btn oh-btn--light">
+                <ion-icon name="arrow-back-outline" class="me-1"></ion-icon> Back to List
+            </a>
+        </div>
+        <form method="post" class="oh-form">`n    {% csrf_token %}
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="report_date" class="form-label">Report Date</label>
+                    {{ form.report_date }}
+                    {{ form.report_date.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="vat_collected" class="form-label">VAT Collected (BHD)</label>
+                    {{ form.vat_collected }}
+                    {{ form.vat_collected.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="vat_paid" class="form-label">VAT Paid (BHD)</label>
+                    {{ form.vat_paid }}
+                    {{ form.vat_paid.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="zakat_due" class="form-label">Zakat Due (BHD)</label>
+                    {{ form.zakat_due }}
+                    {{ form.zakat_due.errors }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="oh-btn oh-btn--secondary">
+                    {% if form.instance.pk %} Update {% else %} Save {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

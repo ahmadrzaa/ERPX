@@ -1,0 +1,115 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="oh-profile-section__title fw-bold">
+                {% if form.instance.pk %} Edit CRM Record {% else %} Add New CRM Record {% endif %}
+            </h4>
+            <a href="{% url 'crmx:crm_list' %}" class="oh-btn oh-btn--light">
+                <ion-icon name="arrow-back-outline" class="me-1"></ion-icon> Back to List
+            </a>
+        </div>
+        <form method="post" class="oh-form">`n    {% csrf_token %}
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="customer_name" class="form-label">Customer Name</label>
+                    {{ form.customer_name }}
+                    {{ form.customer_name.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="company_name" class="form-label">Company Name</label>
+                    {{ form.company_name }}
+                    {{ form.company_name.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="industry" class="form-label">Industry</label>
+                    {{ form.industry }}
+                    {{ form.industry.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="contact_person" class="form-label">Contact Person</label>
+                    {{ form.contact_person }}
+                    {{ form.contact_person.errors }}
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="contact_person_role" class="form-label">Contact Person Role</label>
+                    {{ form.contact_person_role }}
+                    {{ form.contact_person_role.errors }}
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="building" class="form-label">Building</label>
+                    {{ form.building }}
+                    {{ form.building.errors }}
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="road" class="form-label">Road</label>
+                    {{ form.road }}
+                    {{ form.road.errors }}
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="block" class="form-label">Block</label>
+                    {{ form.block }}
+                    {{ form.block.errors }}
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="area" class="form-label">Area</label>
+                    {{ form.area }}
+                    {{ form.area.errors }}
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="city" class="form-label">City</label>
+                    {{ form.city }}
+                    {{ form.city.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="postal_code" class="form-label">Postal Code</label>
+                    {{ form.postal_code }}
+                    {{ form.postal_code.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    {{ form.country }}
+                    {{ form.country.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="lead_source" class="form-label">Lead Source</label>
+                    {{ form.lead_source }}
+                    {{ form.lead_source.errors }}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label for="assigned_to" class="form-label">Assigned To</label>
+                    {{ form.assigned_to }}
+                    {{ form.assigned_to.errors }}
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    {{ form.notes }}
+                    {{ form.notes.errors }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="oh-btn oh-btn--secondary">
+                    {% if form.instance.pk %} Update {% else %} Save {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

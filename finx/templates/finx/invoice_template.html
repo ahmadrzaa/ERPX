@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ invoice.number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        p{
+            padding: 0;
+            margin: 0;
+            font-size: 14px;
+        }
+        .invoice-container {
+            width: 800px;
+            margin: 10px auto;
+            padding: 5px;
+         
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin: 0;
+        }
+
+        .header .logo {
+            text-align: right;
+            font-size: 20px;
+            color: #aaa;
+        }
+
+        .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .invoice-info div {
+            flex: 1;
+        }
+
+        .invoice-info div:nth-child(2) {
+            text-align: right;
+        }
+
+        .details {
+            margin: 20px 0;
+        }
+
+        .details .box {
+            margin-bottom: 20px;
+        }
+
+        .details h2 {
+            font-size: 18px;
+            text-decoration: underline;
+        }
+
+        
+ 
+        .bill-to,
+        .ship-to {
+            display: inline-block;
+            width: 48%;
+            vertical-align: top;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .totals {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .totals h3 {
+            margin: 5px 0;
+        }
+
+        .notes {
+            margin: 20px 0;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+        <!-- Header -->
+        <div class="header">
+            <h1>INVOICE</h1>
+            <div class="logo">                
+                <img style="width: 200px;" src="{{ company_logo_url }}" alt="Company Logo">
+            </div>
+        </div>
+
+        <!-- Invoice Info -->
+        <div class="invoice-info">
+            <div>
+                <p><strong>Invoice No:</strong> {{ invoice.number }}</p>
+                <p><strong>Date:</strong> {{ invoice.issue_date }}</p>
+            </div>
+            <div>
+                <p><strong>Due Date:</strong> {{ invoice.due_date }}</p>
+            </div>
+        </div>
+
+        <!-- Company Details -->
+        <div class="details">
+            <div class="box">
+                <h2>FROM </h2>
+                <P>{{ company_name }}</P>
+                <p>{{ company_address }}</p>
+                <p>{{ company_city }}, {{ company_state }} {{ company_zip }}</p>
+                <p>Phone: {{ company_phone }}</p>
+                <p>Email: {{ company_email }}</p>
+            </div>
+            <div class="box">
+                <div class="bill-to">
+                    <h2>BILL TO:</h2>
+                    <p>{{ invoice.client_name }}</p>
+                    <p>{{ invoice.comp_name }}</p>
+                    <p>{{ invoice.client_email }}</p>
+                
+                </div>
+            </div>
+        </div>
+        
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>              
+                    <th>Quantity</th>
+                    <th>Unit Price ({{ invoice.currency }})</th>
+                    <th>Discount</th>
+                    <th>Tax(%)</th>
+                    <th>Total ({{ invoice.currency }})</th>
+       
+                </tr>
+            </thead>
+            <tbody>
+               
+               
+                {% for items in invoice.line_items %}
+                <tr>
+                    <td>{{ items.item }}</td>
+                
+                    <td>{{ items.quantity }}</td>
+                    <td>{{ items.unit_price }}</td>
+                    <td>{{ items.discount }}</td>
+                    <td>{{ items.tax_rate }}</td>
+                    <td>{{ items.line_total }}</td>
+               
+                </tr>
+             
+                {% endfor %}
+
+
+            </tbody>
+        </table>
+        
+        
+        <div class="totals">
+            {% if invoice.default_cur != invoice.currency %}
+
+                <h2>In {{ invoice.currency }} </h2>
+                <hr>
+                <p><strong>Subtotal:</strong> {{ invoice.currency }} {{ invoice.subtotal }}</p>
+                <p><strong>Total Tax:</strong> {{ invoice.currency }} {{ invoice.total_tax }}</p>
+                <p><strong>Total Amount:</strong> {{ invoice.currency }} {{ invoice.grand_total }}</p>
+                <h2>In {{ invoice.default_cur }} </h2>
+                <hr>
+            {% endif %}
+            <p><strong>Subtotal:</strong> {{ invoice.amount }}</p>
+            {% if invoice.vat_amount != "N/A" %}
+            <p><strong>Total Tax:</strong> {{ invoice.vat_amount }}</p>
+        {% endif %}
+        
+            <p><strong>Total Amount:</strong> {{ invoice.total_amount }}</p>
+        </div>      
+        
+
+        <div class="account">
+            <p>ACCOUNT NAME: PLATFORM BAHRAIN W.L.L</p>
+              <p> IBAN: BH96ALSA00280583100100</p>
+               <p> BANK NAME: Al Salam Bank</p>
+
+        </div>
+
+        
+        <!-- Notes -->
+        <div class="notes">
+            <strong>Special Notes and Terms:</strong>
+            <p>It has been a pleasure doing business with you. Thank you.</p>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            This is a system-generated invoice.
+        </footer>
+    </div>
+</body>
+</html>

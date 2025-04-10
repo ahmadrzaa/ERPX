@@ -1,0 +1,223 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="oh-wrapper">
+    <div class="oh-profile-section">
+        <h4 class="oh-profile-section__title fw-bold">Dashboard</h4>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-md-12 d-flex justify-content-end">
+                <a href="{% url quick_actions.add_invoice_url %}" class="oh-btn oh-btn--secondary me-2">
+                    <ion-icon name="add-outline" class="me-1"></ion-icon> Add Invoice
+                </a>
+                <a href="{% url quick_actions.add_expense_url %}" class="oh-btn oh-btn--secondary me-2">
+                    <ion-icon name="add-outline" class="me-1"></ion-icon> Add Expense
+                </a>
+                <a href="{% url quick_actions.add_journal_entry_url %}" class="oh-btn oh-btn--secondary">
+                    <ion-icon name="add-outline" class="me-1"></ion-icon> Add Journal Entry
+                </a>
+            </div>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--warning">
+                    <h5 class="oh-card__title">Total Revenue</h5>
+                    <p class="oh-card__value">BHD {{ total_revenue|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--neutral">
+                    <h5 class="oh-card__title">Total Expenses</h5>
+                    <p class="oh-card__value">BHD {{ total_expenses|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--success">
+                    <h5 class="oh-card__title">Net Profit</h5>
+                    <p class="oh-card__value">BHD {{ net_profit|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--warning">
+                    <h5 class="oh-card__title">Unpaid Invoices</h5>
+                    <p class="oh-card__value">{{ receivables|length }}</p>
+                </div>
+            </div>
+        </div>
+                <!-- Additional Financial Metrics -->
+        <div class="row mb-4">
+            <!-- Total Receivable -->
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--info">
+                    <h5 class="oh-card__title">Total Receivable</h5>
+                    <p class="oh-card__value">BHD {{ total_receivable|floatformat:2 }}</p>
+                </div>
+            </div>
+            <!-- Total Payable -->
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--danger">
+                    <h5 class="oh-card__title">Total Payable</h5>
+                    <p class="oh-card__value">BHD {{ total_payable|floatformat:2 }}</p>
+                </div>
+            </div>
+            <!-- Total Debits -->
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--neutral">
+                    <h5 class="oh-card__title">Total Debits</h5>
+                    <p class="oh-card__value">BHD {{ total_debits|floatformat:2 }}</p>
+                </div>
+            </div>
+            <!-- Total Credits -->
+            <div class="col-md-3">
+                <div class="oh-card-dashboard oh-card-dashboard--neutral">
+                    <h5 class="oh-card__title">Total Credits</h5>
+                    <p class="oh-card__value">BHD {{ total_credits|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="oh-card">
+                    <h5 class="oh-card__title">Revenue vs Expenses</h5>
+                    <canvas id="revenueExpenseChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="oh-card">
+                    <h5 class="oh-card__title">Expense Breakdown</h5>
+                    <canvas id="expenseBreakdownChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="oh-card__title">Accounts Receivable</h5>
+        <table class="table oh-table">
+            <thead>
+                <tr>
+                    <th>Due Date</th>
+                    <th>Amount (BHD)</th>
+                    <th>Client Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for receivable in receivables %}
+                <tr>
+                    <td>{{ receivable.due_date }}</td>
+                    <td>{{ receivable.total_amount|floatformat:2 }}</td>
+                    <td>{{ receivable.client_name }}</td>
+                    <td>{{ receivable.client_email }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No unpaid invoices.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Accounts Payable -->
+        <h5 class="oh-card__title">Accounts Payable</h5>
+        <table class="table oh-table">
+            <thead>
+                <tr>
+                    <th>Date</th> <!-- Replace with "Due Date" if available -->
+                    <th>Amount (BHD)</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payable in payables %}
+                <tr>
+                    <td>{{ payable.date }}</td> <!-- Replace with payable.due_date if you add it -->
+                    <td>{{ payable.amount|floatformat:2 }}</td>
+                    <td>{{ payable.description }}</td>
+                    <td>{{ payable.category }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No unpaid expenses.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+<script>
+    // Revenue vs Expenses Chart
+    const revenueExpenseChart = document.getElementById('revenueExpenseChart');
+    new Chart(revenueExpenseChart, {
+        type: 'line',
+        data: {
+            labels: {{ revenue_labels|safe }},
+            datasets: [
+                {
+                    label: 'Revenue',
+                    data: {{ revenue_values|safe }},
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    fill: true,
+                },
+                {
+                    label: 'Expenses',
+                    data: {{ expense_values|safe }},
+                    borderColor: '#F44336',
+                    backgroundColor: 'rgba(244, 67, 54, 0.2)',
+                    fill: true,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { title: { display: true, text: 'Month' } },
+                y: { title: { display: true, text: 'Amount (BHD)' } },
+            },
+        },
+    });
+
+    // Expense Breakdown Chart
+    const expenseBreakdownChart = document.getElementById('expenseBreakdownChart');
+    const expenseLabels = {{ expense_breakdown_labels|safe }};
+    const expenseData = {{ expense_breakdown_data|safe }};
+
+    const expenseDatasets = Object.keys(expenseData).map((category, index) => ({
+        label: category,
+        data: expenseData[category],
+        backgroundColor: `hsl(${index * 60}, 70%, 70%)`, // Dynamic colors for each category
+        borderWidth: 1,
+    }));
+
+    new Chart(expenseBreakdownChart, {
+        type: 'bar',
+        data: {
+            labels: expenseLabels,
+            datasets: expenseDatasets,
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            },
+            scales: {
+                x: { title: { display: true, text: 'Month' } },
+                y: { title: { display: true, text: 'Amount (BHD)' } },
+            },
+        },
+    });
+</script>
+
+{% endblock %}
